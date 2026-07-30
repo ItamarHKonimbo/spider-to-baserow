@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spider Items to Baserow — פלואו ייבוא מוצרי חנות</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --border: #e1e4e8;
+  --text: #24292e;
+  --muted: #586069;
+  --accent: #0366d6;
+  --accent-light: #f1f8ff;
+  --code-bg: #f6f8fa;
+  --success: #28a745;
+  --warning: #f66a0a;
+  --danger: #d73a49;
+  --heading-font: 'Georgia', serif;
+  --body-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono-font: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+    --accent-light: #1c2c3e; --code-bg: #1c2128;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--body-font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  padding: 2rem 1rem;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 2.5rem 3rem;
+}
+.toc {
+  background: var(--accent-light);
+  border-right: 4px solid var(--accent);
+  padding: 1rem 1.5rem;
+  border-radius: 6px 0 0 6px;
+  margin-bottom: 2.5rem;
+}
+.toc h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.5rem; }
+.toc ul { padding-right: 1.25rem; list-style: disc; }
+.toc li { line-height: 1.8; }
+.toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.toc a:hover { text-decoration: underline; }
+h1 {
+  font-family: var(--heading-font);
+  font-size: 2.2rem;
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: .5rem;
+  margin-bottom: 1.25rem;
+}
+h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .3rem;
+}
+h3 {
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+h4 { font-size: 1rem; margin-top: 1rem; margin-bottom: 0.4rem; }
+p { margin-bottom: 1rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+blockquote {
+  border-right: 4px solid var(--accent);
+  background: var(--accent-light);
+  padding: .75rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+}
+blockquote.warning { border-right-color: var(--warning); background: #fff8f0; }
+blockquote.danger { border-right-color: var(--danger); background: #fff5f5; }
+@media (prefers-color-scheme: dark) {
+  blockquote.warning { background: #2d1f0a; }
+  blockquote.danger { background: #2d0f0f; }
+}
+blockquote p:last-child { margin-bottom: 0; }
+code {
+  background: var(--code-bg);
+  border-radius: 4px;
+  padding: .15em .4em;
+  font-family: var(--mono-font);
+  font-size: .88em;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+pre code { background: none; padding: 0; font-size: .875em; line-height: 1.6; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+th {
+  background: var(--code-bg);
+  font-weight: 600;
+  text-align: right;
+  padding: .6rem 1rem;
+  border: 1px solid var(--border);
+}
+td { padding: .5rem 1rem; border: 1px solid var(--border); }
+tr:nth-child(even) td { background: var(--code-bg); }
+ul, ol { padding-right: 1.5rem; margin-bottom: 1rem; }
+li { line-height: 2; }
+ul ul, ol ol, ul ol, ol ul { margin-bottom: 0; padding-right: 1.25rem; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.flow-diagram {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; margin: 2rem 0; font-family: var(--body-font);
+}
+.flow-box {
+  background: var(--accent-light); border: 2px solid var(--accent);
+  border-radius: 8px; padding: .6rem 2rem; font-weight: 600;
+  color: var(--text); min-width: 220px; text-align: center; position: relative;
+}
+.flow-box.source { background: #e6ffed; border-color: var(--success); }
+.flow-box.loop-header { background: #f3f0ff; border-color: #6f42c1; font-size: 0.9rem; color: var(--muted); }
+.flow-box.bug { border-color: var(--danger); background: #fff5f5; }
+.flow-arrow {
+  width: 2px; height: 24px; background: var(--muted); position: relative;
+}
+.flow-arrow::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-top: 8px solid var(--muted);
+}
+.loop-container {
+  border: 2px dashed #6f42c1; border-radius: 12px;
+  padding: 1.5rem 2rem; display: flex; flex-direction: column;
+  align-items: center; gap: 0; background: #f9f7ff;
+  position: relative; min-width: 320px;
+}
+@media (prefers-color-scheme: dark) {
+  .flow-box.source { background: #0d2d1a; border-color: var(--success); }
+  .flow-box.loop-header { background: #1a1030; border-color: #9b6dff; }
+  .flow-box.bug { background: #2d0f0f; }
+  .loop-container { background: #13102a; border-color: #9b6dff; }
+}
+.loop-label {
+  position: absolute; top: -12px; right: 16px;
+  background: var(--surface); padding: 0 8px;
+  font-size: 0.78rem; color: #6f42c1; font-weight: 600;
+}
+.fork-row { display: flex; gap: 2rem; align-items: flex-start; margin-top: 0; }
+.fork-branch { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.fork-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
+.side-api {
+  position: absolute; right: -180px; top: 50%; transform: translateY(-50%);
+  background: #fff8e1; border: 1px solid #f0c040; border-radius: 6px;
+  padding: .3rem .75rem; font-size: 0.78rem; color: #856404; white-space: nowrap;
+}
+@media (prefers-color-scheme: dark) {
+  .side-api { background: #2d240a; border-color: #856404; color: #ffc107; }
+}
+.badge {
+  display: inline-block; font-size: 0.72rem; font-weight: 700;
+  padding: .15em .55em; border-radius: 999px; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-right: .25rem; vertical-align: middle;
+}
+.badge-bug { background: #ffeef0; color: var(--danger); border: 1px solid #f9c0c5; }
+.badge-warn { background: #fff3e0; color: var(--warning); border: 1px solid #ffd0a0; }
+.badge-open { background: #e6f0ff; color: var(--accent); border: 1px solid #b3d0ff; }
+.badge-ok { background: #e6ffed; color: var(--success); border: 1px solid #a3d9b1; }
+.node-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  margin: 1.25rem 0; overflow: hidden;
+}
+.node-header {
+  background: var(--accent-light); border-bottom: 1px solid var(--border);
+  padding: .6rem 1.25rem; display: flex; align-items: center; gap: .75rem;
+}
+.node-num {
+  background: var(--accent); color: white; border-radius: 50%;
+  width: 28px; height: 28px; display: flex; align-items: center;
+  justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+}
+.node-title { font-weight: 700; font-size: 1.05rem; }
+.node-body { padding: 1rem 1.25rem; }
+.node-body p { margin-bottom: .6rem; }
+@media print {
+  .toc { display: none; }
+  body { background: white; color: black; }
+  .container { border: none; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Spider Items to Baserow — פלואו ייבוא מוצרי חנות</h1>
+
+<div class="toc">
+<h4>תוכן עניינים</h4>
+<ul>
+  <li><a href="#overview">מה זה ולמה צריך אותו</a></li>
+  <li><a href="#architecture">ארכיטקטורה כללית</a></li>
+  <li><a href="#prereq">מוקדמות</a></li>
+  <li><a href="#schema">סכימת קלט</a></li>
+  <li><a href="#nodes">תיאור הצמתים</a></li>
+  <li><a href="#ops">הפעלת הפלואו</a></li>
+</ul>
+</div>
+
+<h2 id="overview">מה זה ולמה צריך אותו</h2>
+
+<p>
+פלואו זה מקבל שם חנות/דיסטריביוטור של Spider-UI (למשל <code>"ksp"</code>) ומייבא לתוך טבלת Baserow ייעודית
+את <strong>כל</strong> המוצרים ש-Spider גרד עבור אותה חנות, בכל הקטגוריות שבהן יש לה נוכחות — ללא קשר
+לקטלוג Medusa של לקוח כלשהו.
+</p>
+
+<p>
+זה נבדל מהפלואו <code>spider_youleap</code> (spider.yaml): שם ההשוואה מתבצעת per-variant מול URL ספציפי
+שכבר קיים במטאדאטה של מוצר ב-Medusa. כאן אין Medusa בכלל — המטרה היא לבנות "מראה" מלאה של קטלוג חנות
+מתחרה כפי שהוא נראה ב-Spider, בטבלת Baserow עצמאית.
+</p>
+
+<h2 id="architecture">ארכיטקטורה כללית</h2>
+
+<div class="flow-diagram">
+  <div class="flow-box source">קלט: distributor (שם חנות)</div>
+  <div class="flow-arrow"></div>
+  <div class="flow-box">get_categories<div class="side-api">Spider: categories</div></div>
+  <div class="flow-arrow"></div>
+  <div class="flow-box">resolve_store_table<div class="side-api">Baserow: טבלת מיפוי 3387</div></div>
+  <div class="flow-arrow"></div>
+  <div class="loop-container">
+    <div class="loop-label">לולאה על כל קטגוריה (ברצף, skip_failures)</div>
+    <div class="flow-box loop-header">process_category</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-box" style="min-width:260px;">getdestributors → resultdestributor<div class="side-api">Spider API</div></div>
+  </div>
+  <div class="flow-arrow"></div>
+  <div class="flow-box">aggregate_results</div>
+  <div class="flow-arrow"></div>
+  <div class="flow-box">upsert_items<div class="side-api">Baserow: טבלת {store}-items</div></div>
+</div>
+
+<p><strong>נתיב הפלואו:</strong> <code>f/integrations/spider/spider_items_to_baserow</code></p>
+
+<h2 id="prereq">מוקדמות — מה צריך להיות מוגדר לפני הרצה</h2>
+
+<h3>1. טבלת מיפוי חנות → טבלת פריטים</h3>
+<p>
+טבלה קבועה ב-Baserow (database <code>1011</code>) ששומרת עבור כל חנות את מזהה הטבלה הייעודית שלה.
+Baserow API Tokens תומכים רק ב-Rows API ולא ב-ניהול סכימה (יצירת טבלאות/שדות) — לכן טבלה זו,
+וגם טבלת הפריטים של כל חנות, נוצרות <strong>ידנית</strong> מראש.
+</p>
+<table>
+<tr><th>עמודה</th><th>סוג שדה</th><th>תיאור</th></tr>
+<tr><td><code>store_name</code></td><td>Single line text</td><td>שם החנות/דיסטריביוטור, למשל <code>ksp</code></td></tr>
+<tr><td><code>table_id</code></td><td>Number (שלם)</td><td>מזהה טבלת ה-items המתאימה בבייסרואו</td></tr>
+</table>
+
+<h3>2. טבלת פריטים לכל חנות (<code>{store}-items</code>)</h3>
+<p>נוצרת ידנית עם השדות הבאים, לפני הרצה ראשונה עבור אותה חנות:</p>
+<table>
+<tr><th>עמודה</th><th>סוג שדה</th><th>מקור</th></tr>
+<tr><td><code>sku</code></td><td>Single line text</td><td>מפתח ייחודי לזיהוי/upsert</td></tr>
+<tr><td><code>name</code></td><td>Long text</td><td>תיאור/כותרת המוצר</td></tr>
+<tr><td><code>price</code></td><td>Number (עשרוני, 2 ספרות)</td><td>מחיר נוכחי באתר</td></tr>
+<tr><td><code>product_link</code></td><td>URL</td><td>קישור לדף המוצר</td></tr>
+<tr><td><code>category</code></td><td>Single line text</td><td>קטגוריית Spider שבה נמצא הפריט</td></tr>
+<tr><td><code>brand</code></td><td>Single line text</td><td>מותג</td></tr>
+<tr><td><code>model</code></td><td>Single line text</td><td>דגם</td></tr>
+<tr><td><code>spider_category</code></td><td>Single line text</td><td>שם קטגוריה כפי שמופיע ב-Spider (לעיתים בעברית)</td></tr>
+<tr><td><code>last_update</code></td><td>Date (כולל שעה)</td><td>מועד עדכון הפריט לפי Spider</td></tr>
+<tr><td><code>last_seen</code></td><td>Date (כולל שעה)</td><td>מועד ההרצה האחרונה שבה הפריט נצפה</td></tr>
+</table>
+
+<h3>3. הרשאות</h3>
+<ul>
+<li><strong>Spider API token:</strong> לקריאת <code>categories</code>, <code>getdestributors</code>, <code>resultdestributor</code>. גישה מוגבלת per-category/per-distributor — לא כל צירוף חנות+קטגוריה מורשה לאותו token, גם אם החנות מופיעה ברשימת <code>getdestributors</code>.</li>
+<li><strong>Baserow API token:</strong> Rows API בלבד (קריאה/כתיבה/עדכון שורות) — לא יצירת טבלאות/שדות.</li>
+</ul>
+
+<h2 id="schema">סכימת קלט</h2>
+<table>
+<tr><th>שדה</th><th>סוג</th><th>חובה</th><th>תיאור</th></tr>
+<tr><td><code>distributor</code></td><td>string</td><td>כן</td><td>שם החנות/דיסטריביוטור ב-Spider, למשל <code>"ksp"</code></td></tr>
+</table>
+
+<h2 id="nodes">תיאור הצמתים</h2>
+
+<div class="node-card">
+<div class="node-header"><div class="node-num">1</div><div class="node-title">get_categories</div></div>
+<div class="node-body">
+<p><strong>מה עושה:</strong> שולף מ-Spider את רשימת כל הקטגוריות הקיימות (דינמית, לא hardcoded).</p>
+<p><strong>API:</strong> <code>GET https://spider-ui.rudenetworks.com/admin/v1/?method=categories&amp;token=&lt;API_TOKEN&gt;</code></p>
+<p><strong>קלט:</strong> אין</p>
+<p><strong>פלט:</strong> מערך מחרוזות — שמות הקטגוריות (<code>data.payload</code>)</p>
+<p><strong>שפה:</strong> Bun/TypeScript</p>
+</div>
+</div>
+
+<div class="node-card">
+<div class="node-header"><div class="node-num">2</div><div class="node-title">resolve_store_table</div></div>
+<div class="node-body">
+<p><strong>מה עושה:</strong> מוצא בטבלת המיפוי (3387) את מזהה טבלת ה-items המתאימה לחנות שהתקבלה בקלט.</p>
+<p><strong>API:</strong> <code>GET https://table.konimbo.co.il/api/database/rows/table/3387/?user_field_names=true&amp;filter__store_name__equal={distributor}</code>, עם <code>Authorization: Token &lt;API_TOKEN&gt;</code></p>
+<p><strong>קלט:</strong> <code>distributor</code> (מ-<code>flow_input.distributor</code>)</p>
+<p><strong>פלט:</strong> <code>{ table_id: number }</code></p>
+<p><strong>התנהגות בשגיאה:</strong> אם לא נמצאה שורת מיפוי לחנות — הצומת זורק שגיאה ועוצר את הפלואו (אין טבלת יעד לכתוב אליה).</p>
+</div>
+</div>
+
+<div class="node-card">
+<div class="node-header"><div class="node-num">3</div><div class="node-title">לולאה על כל קטגוריה</div></div>
+<div class="node-body">
+<p><strong>מקור האיטרציה:</strong> <code>results.get_categories</code> (הרשימה מצומת 1)</p>
+<p><strong>הגדרות:</strong> <code>parallel: false</code> (רץ ברצף), <code>skip_failures: true</code> (כשל בקטגוריה אחת לא עוצר את הלולאה)</p>
+
+<h4>צומת פנימי — process_category</h4>
+<p><strong>מה עושה:</strong> לכל קטגוריה — בודק תחילה אם החנות מופיעה ברשימת הדיסטריביוטורים של הקטגוריה, ורק אם כן שולף את הפריטים בפועל.</p>
+<p><strong>API שלב 1:</strong> <code>GET .../?method=getdestributors&amp;category={category}&amp;token=&lt;API_TOKEN&gt;</code></p>
+<p><strong>API שלב 2 (רק אם החנות ברשימה):</strong> <code>GET .../?method=resultdestributor&amp;distributor={distributor}&amp;category={category}&amp;token=&lt;API_TOKEN&gt;</code></p>
+<p><strong>פענוח הנתונים:</strong> כל פריט מגיע כ-<code>payload.outputs[].outputs[].values[]</code> — מערך של אובייקטי <code>{name, value}</code>. הצומת ממפה: <code>SKU</code>→sku, <code>DESCRIPTION</code>→name, <code>PRICE</code>→price (מנוקה מתווים לא-מספריים), <code>PRODUCTLINK</code>→product_link, <code>SPbrand</code>→brand, <code>SPmodel</code>→model, <code>SPIDERCATEGORY</code>→spider_category, <code>LASTUPDATE</code>→last_update (מומר ל-ISO). פריט בלי <code>SKU</code> או <code>PRODUCTLINK</code> נזרק.</p>
+<p><strong>קלט:</strong> <code>distributor</code> (<code>flow_input.distributor</code>), <code>category</code> (<code>flow_input.iter.value</code>)</p>
+<p><strong>פלט:</strong> <code>{ category, skipped: boolean, reason?: string, items: Item[] }</code></p>
+<p><strong>מצבי skip:</strong></p>
+<ul>
+<li>החנות לא ברשימת <code>getdestributors</code> לקטגוריה — <code>reason: "distributor_not_supported_in_category"</code></li>
+<li>שגיאת API (כולל Access Denied) בכל אחת מהקריאות — <code>reason</code> מכיל את קוד/הודעת השגיאה מ-Spider</li>
+<li>שגיאת רשת/חריגה — נתפסת ב-try/catch, <code>reason</code> מכיל את הודעת השגיאה</li>
+</ul>
+</div>
+</div>
+
+<div class="node-card">
+<div class="node-header"><div class="node-num">4</div><div class="node-title">aggregate_results</div></div>
+<div class="node-body">
+<p><strong>מה עושה:</strong> מאחד את פלט כל איטרציות הלולאה למערך פריטים אחד, ומפריד רשימת קטגוריות שנכשלו בפועל.</p>
+<p><strong>לוגיקה:</strong> מרוקן/מדלג על מצב <code>distributor_not_supported_in_category</code> (זה לא כשל, רק היעדרות תקינה) — כל שאר ה-<code>reason</code>-ים מתועדים ברשימת <code>failed_categories</code>.</p>
+<p><strong>קלט:</strong> <code>category_results</code> (<code>results.&lt;loop_id&gt;</code> — מערך תוצאות מכל האיטרציות)</p>
+<p><strong>פלט:</strong> <code>{ items: Item[], failed_categories: {category, reason}[] }</code></p>
+</div>
+</div>
+
+<div class="node-card">
+<div class="node-header"><div class="node-num">5</div><div class="node-title">upsert_items</div></div>
+<div class="node-body">
+<p><strong>מה עושה:</strong> לכל פריט — מחפש שורה קיימת בטבלת ה-items לפי <code>sku</code>; אם קיימת מעדכן (PATCH), אחרת יוצר שורה חדשה (POST). מרענן את <code>last_seen</code> לזמן ההרצה הנוכחית בכל מקרה.</p>
+<p><strong>זיהוי שינויים:</strong> לפני עדכון שורה קיימת, משווה את השדות (name, price, product_link, category, brand, model, spider_category, last_update) מול הערכים הקיימים בטבלה. שדות ששונו נאספים לרשומת <code>changes</code> (per-SKU, עם ערך ישן וחדש לכל שדה). <code>last_seen</code> עצמו לא נספר כשינוי — הוא מתעדכן תמיד.</p>
+<p><strong>API חיפוש:</strong> <code>GET .../rows/table/{table_id}/?user_field_names=true&amp;filter__sku__equal={sku}</code></p>
+<p><strong>API עדכון:</strong> <code>PATCH .../rows/table/{table_id}/{row_id}/?user_field_names=true</code></p>
+<p><strong>API יצירה:</strong> <code>POST .../rows/table/{table_id}/?user_field_names=true</code></p>
+<p><strong>קלט:</strong> <code>items</code> (<code>results.aggregate_results.items</code>), <code>table_id</code> (<code>results.resolve_store_table.table_id</code>), <code>failed_categories</code> (<code>results.aggregate_results.failed_categories</code>)</p>
+<p><strong>פלט (תוצאת הפלואו הסופית):</strong></p>
+<pre><code>{
+  total_items: number,
+  inserted: number,
+  updated: number,
+  changes: { sku: string, fields: { field, old, new }[] }[],
+  failed_categories: { category: string, reason: string }[]
+}</code></pre>
+</div>
+</div>
+
+<h2 id="ops">הפעלת הפלואו</h2>
+
+<p><strong>קלט להרצה:</strong> שם דיסטריביוטור, למשל <code>{"distributor": "ksp"}</code>.</p>
+
+<p><strong>הוספת חנות חדשה:</strong></p>
+<ol>
+<li>יוצרים ידנית טבלת <code>{store}-items</code> חדשה ב-Baserow (database 1011) עם השדות המפורטים בסעיף המוקדמות.</li>
+<li>מוסיפים שורה בטבלת המיפוי (3387): <code>store_name</code> = שם החנות, <code>table_id</code> = מזהה הטבלה החדשה.</li>
+<li>מריצים את הפלואו עם <code>distributor</code> = שם החנות.</li>
+</ol>
+
+<p>הפלואו אינו יוצר טבלאות או שדות אוטומטית — רק ממלא/מעדכן שורות בטבלה שכבר קיימת.</p>
+
+</div>
+</body>
+</html>
